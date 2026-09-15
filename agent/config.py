@@ -7,7 +7,9 @@ import urllib.parse
 from dataclasses import dataclass, field
 from pathlib import Path
 
-DEFAULT_CONFIG_PATH = Path(__file__).resolve().parent.parent / "api_config.json"
+# 配置住在 api/ 包里(与 api/config.py 同目录);这份路径是**唯一**权威来源 ——
+# ui 侧的 load_api_config() 也用它,避免两边各算一次、搬家后互相不一致。
+DEFAULT_CONFIG_PATH = Path(__file__).resolve().parent.parent / "api" / "api_config.json"
 
 
 def default_allowed_root() -> Path:

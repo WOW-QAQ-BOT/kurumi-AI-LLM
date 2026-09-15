@@ -132,9 +132,10 @@ Agent 的每一次外发 / 变更都要**逐次批准**。审批卡如实写明�
 
 ---
 
-## 4. 配置 `api_config.json`
+## 4. 配置 `api/api_config.json`
 
-复制 `api_config.example.json` 为 `api_config.json` 后按需修改（该文件已 gitignore）。
+复制 `api/api_config.example.json` 为 `api/api_config.json` 后按需修改（该文件已 gitignore）。
+路径只有一处权威来源：`agent/config.py` 的 `DEFAULT_CONFIG_PATH`，界面与 Agent 都读它。
 
 ```json
 {
@@ -154,7 +155,7 @@ Agent 的每一次外发 / 变更都要**逐次批准**。审批卡如实写明�
 }
 ```
 
-**API Key 的取用顺序**：`api_config.json` 的 `api_key` → 环境变量 `DEEPSEEK_API_KEY`
+**API Key 的取用顺序**：`api/api_config.json` 的 `api_key` → 环境变量 `DEEPSEEK_API_KEY`
 → **Windows 凭据管理器**（推荐）。检测到明文 Key 时会弹「迁移到凭据管理器」确认卡；
 拒绝迁移则 Agent 保持禁用（明文 Key 不落库、不入审计）。
 
@@ -229,7 +230,7 @@ Agent 的每一次外发 / 变更都要**逐次批准**。审批卡如实写明�
 |---|---|---|
 | `agent_data/agent.db` | Agent 运行审计（事件、审批、工具记录、结构化结果） | 只存**脱敏**数据；默认保留 30 天；不含 API Key / Cookie / 完整敏感文件内容 |
 | `agent_data/memory.db` | 长期记忆 + 会话轮次 | 会话是"重启恢复"的权威来源 |
-| `memory.json` | 记忆的 JSON 镜像 | 兼容旧版；损坏时会改名留档而不是静默丢弃 |
+| `memory/memory.json` | 记忆的 JSON 镜像 | 兼容旧版、数据库为空时的回退来源；损坏时会改名留档而不是静默丢弃 |
 | `agent_data/*.before-turn-repair-*` | 历史数据修复前的整库备份 | 只在做过迁移修复时出现，可安全删除 |
 
 **会话语义（看清楚再按「清空」）**
@@ -342,9 +343,12 @@ AI-LLM/
 ├── memory/                  记忆与存储(memory 系列)
 │   ├── model.py             记忆的数据模型与纯函数(不含 IO)
 │   ├── store.py             记忆与会话的 SQLite 存储(含 schema 迁移)
-│   └── commands.py          /记忆 /忘记 /纠正 /置顶 命令
+│   ├── commands.py          /记忆 /忘记 /纠正 /置顶 命令
+│   └── memory.json          记忆 JSON 镜像(不入库)
 ├── api/                     DeepSeek 接入(api 系列)
-│   └── config.py            配置解析与凭据 / 主机授权
+│   ├── config.py            配置解析与凭据 / 主机授权
+│   ├── api_config.example.json  配置模板(入库)
+│   └── api_config.json      你自己的配置(不入库)
 ├── task_intent.py           任务意图识别
 ├── runtime_control.py       取消令牌(聊天与 Agent 共用)
 ├── chat_params.py           DeepSeek 思考模式控制
@@ -363,10 +367,19 @@ AI-LLM/
 ├── assets/architecture.png  架构图(README 展示用)
 ├── models/ · saves/         基座权重与 LoRA(不入库)
 ├── agent_data/              审计与会话数据库(不入库)
-├── api_config.example.json  配置模板
 ├── pyproject.toml           ruff 配置
 └── requirements.txt         全部依赖(**一个文件**,含验证过的版本号)
 ```
+
+**数据文件各归其位**(与代码同域):
+
+| 文件 | 位置 | 入库? |
+|---|---|---|
+| API 配置(活配置) | `api/api_config.json` | 否(gitignore) |
+| API 配置模板 | `api/api_config.example.json` | 是 |
+| 记忆 JSON 镜像 | `memory/memory.json` | 否(gitignore) |
+| 审计与会话数据库 | `agent_data/*.db` | 否(gitignore) |
+| 知识库条目 | `knowledge/knowledge.txt` | 是(想加设定就改它) |
 
 ---
 

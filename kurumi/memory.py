@@ -24,11 +24,11 @@ import tempfile
 import threading
 import time
 
-# JSON 镜像仍在**项目根目录**（与 agent_data/ 并列），不随本模块搬进 kurumi/：
-# 它是旧版本回退与人工查看用的数据文件，位置一变，已有安装就会读到一份"空的记忆"。
-# 因此这里取包目录的上一级（= 项目根），而不是模块所在目录。
+# JSON 镜像住在 **memory/ 包里**（与 memory/store.py、memory/model.py 同目录）：
+# 它是记忆域的数据文件（旧版本回退与人工查看用），所以跟着记忆包走。
+# 路径由**本模块位置**推导（上一级 = 项目根，再进 memory/），搬家后不会指错。
 MEMORY_FILE = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "memory.json")
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "memory", "memory.json")
 
 MAX_MEMORY_ITEMS = 200    # 记忆总条数上限（超出时淘汰最旧）
 MAX_MEMORY_LEN = 200      # 单条记忆最大字符数

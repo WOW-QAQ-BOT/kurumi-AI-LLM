@@ -271,7 +271,9 @@ def load_api_config():
     - error 非空   → 配置有问题（缺 SDK / JSON 无效 / 域名未确认），需明确提示用户，而不是静默回退
     - 两者皆 None → 未配置 API，正常走本地模式
     """
-    cfg_path = os.path.join(_HERE, "api_config.json")
+    # 配置文件的位置只有**一处**权威来源:`agent.config.DEFAULT_CONFIG_PATH`
+    # (api/api_config.json)。UI 与 Agent 各算一次路径的话,搬家时就会两边不一致。
+    cfg_path = DEFAULT_CONFIG_PATH
     cfg: dict = {}
     if os.path.isfile(cfg_path):
         try:
@@ -927,7 +929,7 @@ class KurumiWindow(QMainWindow):
         try:
             # 独立文件:不与 Agent 审计库(agent_data/agent.db)混用 —— 两套 schema
             # 混在一个文件里既难排查,也让"删掉记忆库重建"牵连审计记录。
-            store = MemoryStore(os.path.join(_HERE, "agent_data", "memory.db"))
+            store = MemoryStore(os.path.join(_ROOT, "agent_data", "memory.db"))
 
         except Exception as e:
             self.memories = load_memories()
@@ -1569,7 +1571,7 @@ class KurumiWindow(QMainWindow):
         # 而且旧连接被 GC 掉后,进行中任务后续的审计写入会静默失败。
         store = self._agent_store
         if store is None:
-            store = AgentStore(os.path.join(_HERE, "agent_data", "agent.db"),
+            store = AgentStore(os.path.join(_ROOT, "agent_data", "agent.db"),
                                retention_days=doc.agent.retention_days)
         # 保留引用：closeEvent 里要显式 close()，否则 SQLite 连接永不释放
         self._agent_store = store
@@ -2125,14 +2127,19 @@ class KurumiWindow(QMainWindow):
         event.accept()
 
 
-# 默认路径：先在脚本同目录找模型与 LoRA，再找上一级目录，都找不到时回退 HuggingFace
-_HERE = os.path.dirname(os.path.abspath(__file__))
+# 路径基准。**本文件是 ui/__init__.py,`__file__` 指向 ui/ 目录**,不是项目根 ——
+# 配置(api/api_config.json)、数据(agent_data/)、模型(models/ · saves/)都在项目根,
+# 所以基准必须显式取上一级;直接用 _HERE 会去 ui/ 里找,静默地"用不上主人的配置"、
+# 并且新建一份空的 agent_data(实测踩过)。
+# 兼容部署时的另一种放法:模型也可以与项目并列(见 _PARENT)。
+_HERE = os.path.dirname(os.path.abspath(__file__))       # ui 包目录
+_ROOT = os.path.dirname(_HERE)                           # 项目根(main.py 所在)
+_PARENT = os.path.dirname(_ROOT)                         # 项目根的上一级
 
 # 能力探测的兜底时限(毫秒):超过它还没回来就在状态栏如实说明。
 # 正常探测是 2~3 秒(2 次请求);给到 20 秒是为了容忍慢链路,同时不让
 # "探测线程卡死"变成界面上的无声悬挂。
 _PROBE_WATCHDOG_MS = 20000
-_PARENT = os.path.normpath(os.path.join(_HERE, ".."))
 
 
 def _first_existing(*candidates):
@@ -2143,11 +2150,11 @@ def _first_existing(*candidates):
 
 
 LOCAL_BASE = _first_existing(
-    os.path.join(_HERE, "models", "Qwen3-4B"),
+    os.path.join(_ROOT, "models", "Qwen3-4B"),
     os.path.join(_PARENT, "models", "Qwen3-4B"),
 ) or "Qwen/Qwen3-4B"
 LOCAL_ADAPTER = _first_existing(
-    os.path.join(_HERE, "saves", "qwen3-4b-kurumi"),
+    os.path.join(_ROOT, "saves", "qwen3-4b-kurumi"),
     os.path.join(_PARENT, "saves", "qwen3-4b-kurumi"),
 ) or ""
 

@@ -6,6 +6,7 @@ __pycache__/
 *.log
 
 # 运行时生成的个人记忆（含隐私，勿上传）
+# 实际位置是 memory/memory.json；下面这些模式不带斜杠，因此在任何层级的同名文件都匹配
 memory.json
 # 记忆损坏备份 / 锁文件 / mkstemp 随机临时名：内容与原文件逐字节相同，一次 git add -A
 # 就会把主人的私人记忆全文推上公开仓库，必须一并忽略
@@ -13,10 +14,11 @@ memory.json.*
 memory.*.tmp
 
 # API 密钥（含密钥，勿上传）
+# 实际位置是 api/api_config.json；同样是不带斜杠的模式，层级无关
 api_config.json
 api_config.json.tmp
 # 配置备份：内容与 api_config.json 逐字相同，同样含密钥。
-# 只匹配 `api_config.json.*`，不会误伤 api_config.example.json（前缀不同）。
+# 只匹配 `api_config.json.*`，不会误伤 `api_config.example.json`（前缀不同）。
 api_config.json.*
 
 # 通用临时/原子写入残留（agent 工具用 <原名>.tmp-<8位随机> 命名）
