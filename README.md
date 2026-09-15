@@ -313,10 +313,10 @@ python main.py --help               # 冒烟:命令行参数能解析
 |---|---|
 | 权限策略 / 工具（`agent/tools/*`） | 允许根目录内读自动、写需批准；根目录外写被**拒绝**；回收走回收站 |
 | 网页 / 搜索（`agent/tools/web.py`） | 审批卡写明"两段外发"；代理写错返回 `PROXY_INVALID` 而不是悄悄直连 |
-| 会话与记忆（`memory/store.py`、`UI.py`） | 重启恢复上次对话；清空=开新会话且重启不再载入；失败回合不留孤立轮次 |
-| 能力探测 / 卡片（`UI.py`） | 首次任务先征求同意；拒绝后消息改走普通聊天且不丢；探测超时有可点的出路 |
-| 界面（`ui_*.py`） | 气泡换行与宽度正确（长 token / 中英混排） |
-| 本地模型（`ui_workers.py`、`ui_constants.py`） | 本地生成不空回复、不重复、不半途截断 |
+| 会话与记忆（`memory/store.py`、`ui/__init__.py`） | 重启恢复上次对话；清空=开新会话且重启不再载入；失败回合不留孤立轮次 |
+| 能力探测 / 卡片（`ui/__init__.py`） | 首次任务先征求同意；拒绝后消息改走普通聊天且不丢；探测超时有可点的出路 |
+| 界面（`ui/*.py`） | 气泡换行与宽度正确（长 token / 中英混排） |
+| 本地模型（`ui/workers.py`、`ui/constants.py`） | 本地生成不空回复、不重复、不半途截断 |
 
 ---
 
@@ -325,8 +325,13 @@ python main.py --help               # 冒烟:命令行参数能解析
 ```
 AI-LLM/
 ├── main.py                  启动入口(命令行参数 → 建窗口 → 跑事件循环)
-├── UI.py                    桌面聊天 UI(双引擎 + Agent)
-├── ui_*.py                  界面部件 / 文本 / 常量 / 对话框 / 后台 worker
+├── ui/                      界面(ui 系列)
+│   ├── __init__.py          主窗口 KurumiWindow(双引擎 + Agent)
+│   ├── constants.py         界面可调常量(气泡宽度、生成参数、超时)
+│   ├── text.py              气泡文本与几何(换行 / 宽度 / 重排)
+│   ├── widgets.py           气泡与卡片的控件构建
+│   ├── dialogs.py           信任根写入与对话框文案
+│   └── workers.py           后台线程(加载模型 / 生成 / API 聊天 / 记忆整理)
 ├── persona/                 角色设定(人设卡:SYSTEM_PROMPT + PersonaProfile)
 ├── knowledge/               知识库(检索逻辑 + 可编辑的知识条目)
 │   └── knowledge.txt        原作设定条目 —— 想加设定就改这里

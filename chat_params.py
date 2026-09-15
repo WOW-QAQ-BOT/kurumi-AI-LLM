@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-"""DeepSeek 思考模式控制(从 UI.py 拆出)。
+"""DeepSeek 思考模式控制。
 
-为什么单独成模块:`ui_workers.py` 里的 ApiChatWorker/ApiMemoryWorker 需要这几个函数,
-而它们**不能**从 `UI.py` 导入(会循环导入)。
+为什么单独成模块:`ui/workers.py` 里的 ApiChatWorker/ApiMemoryWorker 需要这几个函数,
+而它们**不能**从 `ui` 包导入(会循环导入)。
 
 状态(`_API_THINKING_SUPPORTED` / `_API_THINKING_DEGRADED`)只在本模块内读写;
-`UI.py` 重新导出同名名字以保持既有访问方式可用。
+`ui/__init__.py` 重新导出同名名字以保持既有访问方式可用。
 """
 from openai import BadRequestError
 

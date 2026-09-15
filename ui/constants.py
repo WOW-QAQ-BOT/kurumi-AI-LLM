@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""UI 层可调常量(从 UI.py 拆出)。
+"""UI 层可调常量。
 
-拆出来的理由:`ui_workers.py` 与 `UI.py` 都要用这些数字,而 `ui_workers.py`
-**不能**反向导入 `UI.py`(会形成循环导入)。因此放到无依赖的独立模块。
+拆出来的理由:`ui/workers.py`、`ui/text.py` 与 `ui/__init__.py` 都要用这些数字,而子模块
+**不能**反向导入 `ui/__init__.py`(会形成循环导入)。因此放到无依赖的独立模块。
 
 注意 `MIN_NEW_TOKENS` / `REPETITION_PENALTY` / `MEMORY_MAX_NEW_TOKENS` 会直接影响
 本地模型的生成行为(取值不当会让本地模型空回复或重复):改动之后务必在本地模式下**手工**跑一遍,
@@ -24,8 +24,6 @@ BUBBLE_GEOM_INTERVAL_S = 0.05    # 流式输出时重算气泡固定宽高的最
 
 ORPHAN_EXIT_WAIT_S = 2.0         # 退出前对保活线程的限时等待总上限
 
-# ==================== 凭据外发域名(安全相关,改动需谨慎) ====================
-# 信任根之一:内置官方域名。另一个是用户在确认卡上点过「允许」并写入凭据管理器的主机。
-OFFICIAL_API_HOSTS = ("https://api.deepseek.com",)
-ALLOWED_HOST_ACCOUNT_PREFIX = "allowed-host:"
-ALLOWED_HOST_CONFIRMED_VALUE = "confirmed"
+# 注:凭据外发域名的信任根常量(OFFICIAL_API_HOSTS / ALLOWED_HOST_ACCOUNT_PREFIX /
+# ALLOWED_HOST_CONFIRMED_VALUE)属于 **api 域**,已移到 api/config.py —— 那是唯一
+# 的使用方;留在这里会让 api 反过来导入 ui,形成循环导入。

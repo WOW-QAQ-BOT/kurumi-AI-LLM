@@ -94,9 +94,9 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-# UI.py 是窗口壳，QSS/常量块之后仍有按分区组织的导入（模块拆分的中间状态）。
-# 这些导入位置由"模块拆分约束"（见 ui_text.py 顶部说明）决定，不靠 E402 管。
-"UI.py" = ["E402"]
+# ui/__init__.py 是窗口壳，QSS/常量块之后仍有按分区组织的导入（模块拆分的中间状态）。
+# 这些导入位置由"模块拆分约束"（见 ui/text.py 顶部说明）决定，不靠 E402 管。
+"ui/__init__.py" = ["E402"]
 
 [tool.ruff.lint.isort]
 known-first-party = [
@@ -106,11 +106,7 @@ known-first-party = [
     "kurumi",
     "persona",
     "knowledge",
+    "ui",
     "runtime_control",
-    "ui_text",
-    "ui_widgets",
-    "ui_workers",
-    "ui_dialogs",
-    "ui_constants",
     "chat_params",
 ]

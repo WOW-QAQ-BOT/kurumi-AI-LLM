@@ -1,13 +1,19 @@
 # -*- coding: utf-8 -*-
-"""凭据与主机授权(从 UI.py 拆出)。
+"""凭据与主机授权。
 
-拆出来的这五个函数与 `UI.py` 的模块级状态无关(`load_api_config` 会读 `_HERE`/
-`_HAS_OPENAI`;为了保留"可以按需替换这两个名字"的口子,它们**仍留在 UI.py**)。
+拆出来的这五个函数与 `ui/__init__.py` 的模块级状态无关(`load_api_config` 会读
+`_HERE`/`_HAS_OPENAI`;为了保留"可以按需替换这两个名字"的口子,它们**仍留在 ui 包**)。
 
-`OFFICIAL_API_HOSTS` / `ALLOWED_HOST_ACCOUNT_PREFIX` 只是常量,从 `ui_constants`
-导入即可;本模块**不得**导入 `UI.py`(会循环导入)。
+本模块**不得**导入 `ui` 包(会循环导入:ui/__init__.py 反过来要导入本模块)。
+所以下面的信任根常量直接定义在这里 —— 它们本来就属于 api 域,ui 侧
+(ui/dialogs.py、ui/__init__.py)从这里取用,方向是单向的 ui → api。
 """
-from ui_constants import ALLOWED_HOST_ACCOUNT_PREFIX, OFFICIAL_API_HOSTS
+
+# ==================== 凭据外发域名(安全相关,改动需谨慎) ====================
+# 信任根之一:内置官方域名。另一个是用户在确认卡上点过「允许」并写入凭据管理器的主机。
+OFFICIAL_API_HOSTS = ("https://api.deepseek.com",)
+ALLOWED_HOST_ACCOUNT_PREFIX = "allowed-host:"
+ALLOWED_HOST_CONFIRMED_VALUE = "confirmed"
 
 
 def _normalize_host(value):

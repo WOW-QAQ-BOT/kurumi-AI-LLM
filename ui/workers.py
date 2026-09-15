@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""后台线程(QThread):本地模型加载/生成、记忆整理、API 聊天与记忆(从 UI.py 拆出)。
+"""后台线程(QThread):本地模型加载/生成、记忆整理、API 聊天与记忆。
 
-这些类只依赖 Qt 与(本地路径才需要的)推理栈,不依赖 `UI.py` 里的任何状态。
-拆分后的硬约束:**本模块不得导入 `UI.py`**(会循环导入)。需要的常量走 `ui_constants`。
+这些类只依赖 Qt 与(本地路径才需要的)推理栈,不依赖 `ui/__init__.py` 里的任何状态。
+拆分后的硬约束:**本模块不得导入 `ui/__init__.py`**(会循环导入)。需要的常量走 `ui/constants.py`。
 
 **推理栈采用延迟导入**。纯 API 模式(不装本地推理栈,见 requirements.txt 里
 「本地模型 + LoRA」那一段)不装
@@ -21,13 +21,13 @@ from PySide6.QtCore import QThread, Signal
 from chat_params import _chat_create, _take_thinking_degradation, _thinking_kwargs
 from kurumi.memory import extract_prompt, history_to_text, parse_memories
 from runtime_control import CancellationToken
-from ui_constants import GEN_JOIN_TIMEOUT_S, MEMORY_MAX_NEW_TOKENS, MIN_NEW_TOKENS, REPETITION_PENALTY
+from ui.constants import GEN_JOIN_TIMEOUT_S, MEMORY_MAX_NEW_TOKENS, MIN_NEW_TOKENS, REPETITION_PENALTY
 
 if TYPE_CHECKING:      # 仅供类型检查/IDE,运行期不导入推理栈
     from transformers import StoppingCriteria as _StoppingCriteriaBase
 else:
     # 基类占位:本地生成路径用到时再换成真正的 transformers.StoppingCriteria
-    # (见 _stopping_base)。这样 `import ui_workers` 不再触发 4 GB 依赖。
+    # (见 _stopping_base)。这样 `import ui.workers` 不再触发 4 GB 依赖。
     class _StoppingCriteriaBase:
         pass
 

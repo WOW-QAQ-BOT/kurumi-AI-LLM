@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""聊天区控件构建(从 UI.py 拆出)。
+"""聊天区控件构建。
 
 统一约定:每个函数的第一个参数是**窗口对象**,只使用下面这组最小接口 ——
 
@@ -16,8 +16,8 @@ import json
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QPushButton, QVBoxLayout
 
-from ui_constants import BUBBLE_H_PADDING, BUBBLE_WIDTH_RATIO
-from ui_text import _make_bubble_view, _relayout_after_mount
+from ui.constants import BUBBLE_H_PADDING, BUBBLE_WIDTH_RATIO
+from ui.text import _make_bubble_view, _relayout_after_mount
 
 
 def _insert_card(window, card, view):

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""信任根写入与对话框文案(从 UI.py 拆出)。
+"""信任根写入与对话框文案。
 
 拆出来的动机不只是"文件太长":`_persist_allowed_host` 若写死 `DEFAULT_CONFIG_PATH`,就
 **直接改主人真实的 api_config.json**,也就无法被单独调用验证。搬到这里后
@@ -15,6 +15,15 @@
 import json
 import os
 
+# 信任根常量住在 api 域(api/config.py):本模块与 ui/__init__.py 都从这里取,
+# 依赖方向保持单向的 ui → api,不会绕回来形成循环导入。
+from api.config import (
+    ALLOWED_HOST_CONFIRMED_VALUE,
+    _confirmed_host_account,
+    _new_credential_store,
+    _normalize_host,
+)
+
 
 def persist_allowed_host(host, cfg_path, store=None):
     """把主人确认的域名写入信任根,并留一条 api_config.json 候选记录。
@@ -22,9 +31,6 @@ def persist_allowed_host(host, cfg_path, store=None):
     `cfg_path` 必须由调用方给出(生产传 DEFAULT_CONFIG_PATH);这样调用方可以用临时文件,
     不必碰真实配置。`store` 为 None 时构造真实凭据管理器。
     """
-    from api.config import _confirmed_host_account, _new_credential_store, _normalize_host
-    from ui_constants import ALLOWED_HOST_CONFIRMED_VALUE
-
     if store is None:
         store = _new_credential_store()
     if store is None:

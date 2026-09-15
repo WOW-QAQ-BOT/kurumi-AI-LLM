@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-"""气泡文本与几何(从 UI.py 拆出)。
+"""气泡文本与几何。
 
 这些函数只依赖 Qt 的 QLabel 与常量,不依赖窗口状态,因此可以独立成模块。
 
 **关键设计**:模块内部互相调用时一律走**本模块的名字**(例如 `_append_bubble_text`
-调用本模块的 `_relayout_bubble`),而 `UI.py` 只是重导出它们。这样"替换 `UI.<name>`"
+调用本模块的 `_relayout_bubble`),而 `ui/__init__.py` 只是重导出它们。这样"替换 `ui.<name>`"
 只影响外部调用方,不会让模块内的既有调用半新半旧。谁若把内部调用改成走 `UI.<name>`,
 就会绕开本模块的实现 —— 改之前先想清楚。
 """
@@ -14,7 +14,7 @@ import time as _time
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel
 
-from ui_constants import (
+from ui.constants import (
     BUBBLE_GEOM_INTERVAL_S,
     BUBBLE_MIN_WIDTH,
     BUBBLE_TEXT_PADDING,

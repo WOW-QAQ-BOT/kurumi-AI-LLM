@@ -267,7 +267,7 @@ def load_memories_with_status():
 def load_memories():
     """加载记忆：损坏/手工编辑过的 JSON 安全降级，非法条目自动跳过并去重。
 
-    返回类型保持 list（兼容 UI.py / agent）。解析失败时返回 []，但原文件已备份为
+    返回类型保持 list（兼容 ui 包 / agent）。解析失败时返回 []，但原文件已备份为
     ``<memory.json>.corrupt-<时间戳>``，可通过模块级 ``last_load_error`` 或
     ``load_memories_with_status()`` 判断本次是"真的没有记忆"还是"解析失败"。
     """

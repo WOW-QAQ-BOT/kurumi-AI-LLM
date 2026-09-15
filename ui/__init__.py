@@ -46,12 +46,12 @@ from runtime_control import CancellationToken
 
 # 人设与知识库现在统一经 ContextBuilder 组装(见 kurumi.context),UI 不再直接依赖它们
 #
-# 后台线程/推理栈/思考层已拆到 ui_workers.py、chat_params.py,
-# 这里不再导入 transformers(本地推理依赖只出现在 ui_workers)。
+# 后台线程/推理栈/思考层已拆到 ui/workers.py、chat_params.py,
+# 这里不再导入 transformers(本地推理依赖只出现在 ui/workers.py)。
 
 try:
     # OpenAI 只用于 `_HAS_OPENAI` 探测与未装 openai 时的占位异常;
-    # 实际调用在 ui_workers.py(它自己 import)。因此这里不能删掉这次导入。
+    # 实际调用在 ui/workers.py(它自己 import)。因此这里不能删掉这次导入。
     from openai import BadRequestError, OpenAI  # noqa: F401
     _HAS_OPENAI = True
 except ImportError:
@@ -97,18 +97,19 @@ except ImportError:
 
 # ==================== 可调常量与拆分模块（实现见各自文件） ====================
 # 常量、后台线程、凭据校验各自独立成模块。
-# 这里保留**同名绑定**是刻意的:调用方(以及将来任何调试脚本)仍以 `UI.<name>` 访问,
-# 例如按端点能力调整 `UI._API_THINKING_*`、替换 `UI._HERE` / `UI._HAS_OPENAI`。
+# 这里保留**同名绑定**是刻意的:调用方(以及将来任何调试脚本)仍以 `ui.<name>` 访问,
+# 例如按端点能力调整 `ui._API_THINKING_*`、替换 `ui._HERE` / `ui._HAS_OPENAI`。
 from api.config import (  # noqa: F401
+    ALLOWED_HOST_ACCOUNT_PREFIX,
+    ALLOWED_HOST_CONFIRMED_VALUE,
+    OFFICIAL_API_HOSTS,
     _confirmed_host_account,
     _host_is_allowed,
     _is_candidate_host,
     _new_credential_store,
     _normalize_host,
 )
-from ui_constants import (  # noqa: F401
-    ALLOWED_HOST_ACCOUNT_PREFIX,
-    ALLOWED_HOST_CONFIRMED_VALUE,
+from ui.constants import (  # noqa: F401
     BUBBLE_GEOM_INTERVAL_S,
     BUBBLE_H_PADDING,
     BUBBLE_MIN_WIDTH,
@@ -119,12 +120,11 @@ from ui_constants import (  # noqa: F401
     GEN_JOIN_TIMEOUT_S,
     MEMORY_MAX_NEW_TOKENS,
     MIN_NEW_TOKENS,
-    OFFICIAL_API_HOSTS,
     ORPHAN_EXIT_WAIT_S,
     REPETITION_PENALTY,
 )
-from ui_dialogs import host_confirmation_text, migrate_key_text, persist_allowed_host
-from ui_text import (  # noqa: F401  —— 实现见 ui_text.py
+from ui.dialogs import host_confirmation_text, migrate_key_text, persist_allowed_host
+from ui.text import (  # noqa: F401  —— 实现见 ui/text.py
     _append_bubble_text,
     _bubble_text,
     _bubble_text_width,
@@ -133,13 +133,13 @@ from ui_text import (  # noqa: F401  —— 实现见 ui_text.py
     _relayout_bubble,
     _set_bubble_text,
 )
-from ui_widgets import (
+from ui.widgets import (
     add_action_card,
     add_approval_card,
     add_bubble,
     add_neutral_card,
 )
-from ui_workers import (  # noqa: F401
+from ui.workers import (  # noqa: F401
     ApiChatWorker,
     ApiMemoryWorker,
     GenerationWorker,
@@ -150,7 +150,7 @@ from ui_workers import (  # noqa: F401
 
 # 关闭窗口时仍在运行的线程对象转存于此保活：
 # QThread 在 run() 未返回时被 Python 析构会触发 Qt qFatal abort，必须在 accept() 前留引用。
-# （ORPHAN_EXIT_WAIT_S 已随常量迁到 ui_constants,上面已导入,此处不再重复定义）
+# （ORPHAN_EXIT_WAIT_S 已随常量迁到 ui/constants.py,上面已导入,此处不再重复定义）
 _ORPHANED_THREADS = []
 
 
@@ -697,7 +697,7 @@ class KurumiWindow(QMainWindow):
         return int(self.width() * BUBBLE_WIDTH_RATIO) - BUBBLE_H_PADDING
 
     def add_bubble(self, text, is_user):
-        # 控件构建细节在 ui_widgets.py,窗口只做委派
+        # 控件构建细节在 ui/widgets.py,窗口只做委派
         return add_bubble(self, text, is_user)
 
     def _scroll_bottom(self):
@@ -1479,7 +1479,7 @@ class KurumiWindow(QMainWindow):
         )
 
     def _persist_allowed_host(self, host):
-        """把主人确认的域名写入信任根(实现见 ui_dialogs.persist_allowed_host)。
+        """把主人确认的域名写入信任根(实现见 ui/dialogs.py 的 persist_allowed_host)。
 
         路径作为显式参数传入,于是「凭据管理器写失败必须抛出、
         且不得写入 api_config.json」这类安全语义可以用临时文件完整验证。
@@ -2040,15 +2040,15 @@ class KurumiWindow(QMainWindow):
             self.on_remember()
 
     def _add_neutral_card(self, text):
-        # 控件构建细节在 ui_widgets.py
+        # 控件构建细节在 ui/widgets.py
         return add_neutral_card(self, text)
 
     def _add_action_card(self, text, buttons):
-        # 控件构建细节在 ui_widgets.py
+        # 控件构建细节在 ui/widgets.py
         return add_action_card(self, text, buttons)
 
     def _add_approval_card(self, event):
-        # 控件构建细节在 ui_widgets.py
+        # 控件构建细节在 ui/widgets.py
         return add_approval_card(self, event)
 
     # ==================== 常规聊天 ====================

@@ -9,7 +9,7 @@
   python main.py --base <模型目录> --adapter <LoRA目录>
 
 本文件只负责"**怎么启动**"：解析参数 → 建 QApplication → 建窗口 → 跑事件循环 →
-退出前给保活线程一次限时收尾。界面实现全在 UI.py（KurumiWindow）与 ui_*.py。
+退出前给保活线程一次限时收尾。界面实现全在 ui/ 包（KurumiWindow 在 ui/__init__.py，零件在 ui/*.py）。
 
 这样分开的理由：启动参数（用哪个引擎、用哪份权重）与界面实现是两件独立的事，
 改启动方式不必动那个两千行的窗口文件。参数含义见 README 第 6 节。
@@ -19,11 +19,11 @@ import sys
 
 from PySide6.QtWidgets import QApplication
 
-from UI import LOCAL_ADAPTER, LOCAL_BASE, KurumiWindow, _wait_for_orphaned_threads
+from ui import LOCAL_ADAPTER, LOCAL_BASE, KurumiWindow, _wait_for_orphaned_threads
 
 
 def build_parser():
-    """命令行参数。默认值由 UI.py 按"脚本同目录 → 上一级目录 → HuggingFace"探测得出。"""
+    """命令行参数。默认值由 ui 包按"脚本同目录 → 上一级目录 → HuggingFace"探测得出。"""
     p = argparse.ArgumentParser(
         prog="main.py",
         description="时崎狂三 · 桌面聊天（本地模型 + LoRA，或 DeepSeek API）",
