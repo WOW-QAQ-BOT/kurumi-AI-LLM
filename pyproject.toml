@@ -1,0 +1,120 @@
+[tool.ruff]
+# 本文件把"代码质量闸门"固定下来。
+#
+# 设计原则：**不追求规则越多越好**，只要满足两条 ——
+#   1) 报出来的都是真问题（否则大家会习惯性忽略）；
+#   2) 每条 ignore 都写明理由（而不是一把全关）。
+#
+# 运行： python -m ruff check .
+target-version = "py311"          # 与 venv311 / requirements.txt 的 3.10~3.13 声明对齐
+line-length = 110
+
+# 排除：虚拟环境、第三方模型目录、本地探针（探针含漏洞复现细节，不入库也不参与检查）
+exclude = [
+    "venv311",
+    "models",
+    "saves",
+    "agent_data",
+    "__pycache__",
+    ".probe*",
+]
+
+[tool.ruff.lint]
+# 选用的规则集（每条都对应一类真问题）：
+#   F      pyflakes：未定义名、未使用导入/变量 —— F821 这类问题必须拦住
+#   E/W    pycodestyle 的明显问题
+#   I      导入顺序
+#   UP     pyupgrade：过时写法
+#   B      bugbear：可变默认参数、静默 except 之外的坑
+#   SIM    可简化写法
+#   C4     推导式/comprehension 误用
+#   RUF    ruff 自带规则
+select = ["F", "E", "W", "I", "UP", "B", "SIM", "C4", "RUF"]
+
+ignore = [
+    # 文件头 `# -*- coding: utf-8 -*-` 是**故意保留**的：
+    # pip 读 requirements 文件时若既无 BOM 也无编码声明，会按系统 ANSI 代码页
+    # （中文 Windows 是 GBK）解码，中文注释会让 pip 直接抛 UnicodeDecodeError。
+    # 源码本身不需要它，但项目风格统一保留，故关掉这条"建议删除"。
+    "UP009",
+
+    # RUF001/002/003 把**中文标点**（：，（）、「」）判为"与 ASCII 混淆的歧义字符"。
+    # 对中文项目这是纯噪音：全角标点在中文里才是正确写法，改成半角反而不通顺。
+    # （实测这三条占 1206 条报错中的 99%，会彻底淹没真问题。）
+    "RUF001",
+    "RUF002",
+    "RUF003",
+
+    # E501 行宽：中文按字符数算毫无意义（一个汉字视觉宽度约等于两个西文字符），
+    # 强行限制会迫使把说明性注释拆碎。关键约束靠代码审查保证。
+    "E501",
+
+    # SIM105 建议把 `try/except: pass` 换成 contextlib.suppress。
+    # 本项目这类位置多为"尽力而为"的清理（关连接、停线程、发事件），
+    # 其中不少 except 体内不止 pass（有降级/记数），改写反而更难读。
+    "SIM105",
+
+    # ---- 以下几条是**刻意写法**，不是缺陷（逐条给理由，而不是一把全关）----
+
+    # C408：`dict(a=1)` 与 `{"a": 1}` 语义等价，但前者在**参数很多**的调用点
+    # （构建 API 请求体）视觉上更像"具名参数"，改动收益为零、风险非零。
+    "C408",
+
+    # RUF015：允许 `[x for x in xs][0]` 这种写法，语义是"取唯一元素并顺带断言非空"
+    # （空列表会 IndexError）。改成 next() 会丢掉这一层保护。
+    "RUF015",
+
+    # RUF005：`a + [b]` 与 `[*a, b]` 等价。项目里是拼接固定小列表（如 + [标签]），
+    # 前者更直观；且这类改动会触及"传给模型/写库"的内容拼接，无收益不值得动。
+    "RUF005",
+
+    # SIM112：环境变量名大小写。`OneDrive`/`OneDriveConsumer` 是 Windows 上
+    # **真实存在的环境变量名**（不区分大小写但注册表里就是这个写法），
+    # 改成全大写会让"这来自系统环境"这一线索消失。
+    "SIM112",
+
+    # UP042：`class RunState(str, Enum)` → `StrEnum`。**故意不改**：
+    # 这些枚举会写进 SQLite、也会与 JSON/审计里的历史字符串比较，
+    # 而 `StrEnum` 在部分格式化场景下字符串化行为不同，改动风险远大于收益。
+    "UP042",
+
+    # SIM108/SIM110/SIM102/SIM103：这几条建议把带注释的 if/for 折叠成三元表达式或
+    # all()/any()。项目里这些分支往往带**说明为什么**的注释，折叠后会丢失可读性。
+    "SIM102",
+    "SIM103",
+    "SIM108",
+    "SIM110",
+
+    # RUF012：`ClassVar` 标注。类属性上的只读常量字典不强制标注，标注收益为零。
+    "RUF012",
+
+    # RUF013：`max_chars: int = None` 这类隐式 Optional。项目里是"None 表示用默认值"
+    # 的既有约定，改成 `int | None` 只是类型标注更严格，运行期语义不变。
+    "RUF013",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# UI.py 是窗口壳，QSS/常量块之后仍有按分区组织的导入（模块拆分的中间状态）。
+# 这些导入位置由"模块拆分约束"（见 ui_text.py 顶部说明）决定，不靠 E402 管。
+"UI.py" = ["E402"]
+
+[tool.ruff.lint.isort]
+known-first-party = [
+    "agent",
+    "memory_commands",
+    "memory_model",
+    "memory_store",
+    "kurumi_context",
+    "kurumi_conversation",
+    "kurumi_memory",
+    "kurumi_persona",
+    "knowledge",
+    "runtime_control",
+    "ui_text",
+    "ui_widgets",
+    "ui_workers",
+    "ui_dialogs",
+    "ui_constants",
+    "api_config",
+    "chat_params",
+]

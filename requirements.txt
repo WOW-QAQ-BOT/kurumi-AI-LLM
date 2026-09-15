@@ -1,0 +1,61 @@
+# -*- coding: utf-8 -*-
+# 时崎狂三 AI-LLM · 全部依赖（**一个文件装完**）
+#
+#   pip install -r requirements.txt
+#
+# 只要 DeepSeek API 模式、不想下 4 GB 的本地推理栈：把下面「本地模型」那一段注释掉，
+# 装完用 `python main.py --no-local` 启动（界面上"显存不足且未配置 API"之类的提示
+# 会照常给出，不会静默崩溃）。
+#
+# ---- 上面这行编码声明不能删 ----
+# pip 读 requirements 文件时，若既无 BOM 也无编码声明，会按系统 ANSI 代码页
+# （中文 Windows 是 GBK）解码，本文件的中文注释会让 pip 直接抛
+# UnicodeDecodeError（实测 pip 24.0）。
+#
+# ---- Python 版本 ----
+# 需要 >= 3.10 且 < 3.13：runtime_control.py 用了 `float | None` 这类 PEP 604 语法，
+# 3.9 及以下直接 SyntaxError；而 torch==2.5.1 没有 cp313 轮子，3.13 上本文件会
+# 解析失败（那时请把 torch 升到 >= 2.6，或改用纯 API 模式）。已在 3.11.9 上验证。
+#
+# ---- NVIDIA GPU 用户必看 ----
+# 下面用 --extra-index-url 引入了 PyTorch 官方 cu124 索引，所以**一次安装就能拿到
+# CUDA 版 torch**：`torch==2.5.1` 同时匹配 PyPI 的 CPU 轮子与索引里的 2.5.1+cu124，
+# 而带本地版本号的那个排序更高，pip 会选它。装完请自检：
+#   python -c "import torch;print(torch.__version__, torch.version.cuda, torch.cuda.is_available())"
+#   期望 2.5.1+cu124 12.4 True
+# 若显示 2.5.1+cpu / None False（本地模型会退化成 CPU 推理，很慢），用这一行强制重装：
+#   pip install --force-reinstall --index-url https://download.pytorch.org/whl/cu124 torch==2.5.1
+# 驱动要求：支持 CUDA 12.x 的 NVIDIA 驱动（建议 >= 525）。
+#
+# 下面的版本号都是 venv311（Windows 11 + Python 3.11.9 + CUDA 12.4）上**实际验证过**
+# 的那一组，用 `==` 固定下来；注释里写明每个包"为什么需要它"。
+
+--extra-index-url https://download.pytorch.org/whl/cu124
+
+# ---- 桌面界面 + DeepSeek API（必需）----
+PySide6==6.11.2         # 桌面 UI
+openai==2.54.0          # DeepSeek 普通聊天 + Agent Responses API
+keyring==25.7.0         # Windows 凭据管理器（API Key 与已确认域名的信任根）
+jsonschema==4.26.0      # Agent 工具参数校验
+Send2Trash==1.8.3       # 文件回收（本项目不提供永久删除）
+psutil==6.1.1           # 只读系统信息工具（进程/CPU/内存/磁盘）
+
+# ---- 本地模型 + LoRA（4-bit QLoRA；不用本地模型就整段注释掉）----
+torch==2.5.1            # GPU 用户应为 +cu124（见上面的自检命令）
+transformers==5.8.0     # 需要 >= 4.56 才认识 from_pretrained(dtype=...)，
+                        # 更旧的版本会静默按 fp32 加载，6 GB 显存直接 OOM
+peft==0.18.1            # LoRA 加载 / merge_and_unload
+accelerate==1.11.0      # device_map="auto"
+bitsandbytes==0.48.0    # 4-bit 量化加载
+
+# ---- 联网搜索（可选）----
+# 不装不影响任何其它功能：web_search 工具在未安装时如实返回 NOT_INSTALLED 并说明
+# 怎么装（见 agent/tools/web.py 的 _load_ddgs 延迟导入）。装完还要在 api_config.json
+# 的 agent 段里开启 "web_search_enabled": true。
+# 代理：ddgs 会去访问多个搜索引擎的网页，受限链路上必须配 "web_search_proxy"
+# （支持 http:// 与 socks5://），也可用环境变量 KURUMI_SEARCH_PROXY。
+# 注意：ddgs 是抓取各引擎结果页的元搜索库，可能随对方改版而失效 —— 失败时会如实报错。
+ddgs==9.16.0            # 元搜索（聚合 bing/google/duckduckgo/mojeek 等）
+
+# ---- 开发工具（可选）----
+ruff==0.16.4            # `python -m ruff check .`；配置见 pyproject.toml

@@ -1,0 +1,33 @@
+{
+  "base_url": "https://api.deepseek.com",
+  "chat_model": "deepseek-v4-flash",
+  "agent_model": "deepseek-v4-flash",
+  "credential_id": "kurumi-deepseek",
+  "allowed_hosts": ["https://api.deepseek.com"],
+  "agent": {
+    "enabled": true,
+
+    "allowed_root": "",
+
+    "max_tool_calls": 8,
+    "max_model_rounds": 10,
+    "max_model_retries": 4,
+    "active_timeout_seconds": 120,
+    "approval_timeout_seconds": 1800,
+    "max_output_tokens": 8192,
+    "retention_days": 30,
+    "extra_tools_enabled": false,
+
+    "stream": true,
+
+    "web_tools_enabled": false,
+    "web_timeout_seconds": 10,
+
+    "_搜索_说明": "web_search 由 ddgs 库提供(聚合多个搜索引擎),需要先 pip install ddgs",
+    "web_search_enabled": false,
+    "web_search_proxy": "",
+    "web_search_engine": "auto",
+    "web_search_timeout_seconds": 15,
+    "web_search_max_results": 5
+  }
+}

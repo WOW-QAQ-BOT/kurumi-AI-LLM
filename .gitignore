@@ -1,0 +1,42 @@
+# Python 缓存
+__pycache__/
+*.pyc
+
+# 日志
+*.log
+
+# 运行时生成的个人记忆（含隐私，勿上传）
+memory.json
+# 记忆损坏备份 / 锁文件 / mkstemp 随机临时名：内容与原文件逐字节相同，一次 git add -A
+# 就会把主人的私人记忆全文推上公开仓库，必须一并忽略
+memory.json.*
+memory.*.tmp
+
+# API 密钥（含密钥，勿上传）
+api_config.json
+api_config.json.tmp
+# 配置备份：内容与 api_config.json 逐字相同，同样含密钥。
+# 只匹配 `api_config.json.*`，不会误伤 api_config.example.json（前缀不同）。
+api_config.json.*
+
+# 通用临时/原子写入残留（agent 工具用 <原名>.tmp-<8位随机> 命名）
+*.tmp
+*.tmp-*
+
+# 训练产物 / 模型权重（太大，请传到 HuggingFace 而非 GitHub）
+saves/
+*.safetensors
+*.bin
+models/
+
+# Python 虚拟环境（体积巨大，勿上传）
+venv311/
+
+# Agent 运行状态与临时产物
+agent_data/
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
