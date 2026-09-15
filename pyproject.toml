@@ -101,12 +101,9 @@ ignore = [
 [tool.ruff.lint.isort]
 known-first-party = [
     "agent",
-    "memory_commands",
-    "memory_model",
-    "memory_store",
-    "kurumi_context",
-    "kurumi_conversation",
-    "kurumi_memory",
+    "api",
+    "memory",
+    "kurumi",
     "persona",
     "knowledge",
     "runtime_control",
@@ -115,6 +112,5 @@ known-first-party = [
     "ui_workers",
     "ui_dialogs",
     "ui_constants",
-    "api_config",
     "chat_params",
 ]

@@ -31,20 +31,20 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-import memory_commands
 import task_intent
-from kurumi_conversation import ENGINE_AGENT, ENGINE_API, ENGINE_LOCAL, ConversationService
-from kurumi_memory import (
+from kurumi.conversation import ENGINE_AGENT, ENGINE_API, ENGINE_LOCAL, ConversationService
+from kurumi.memory import (
     add_memories,
     attach_store,
     load_memories,
     load_memories_store_first,
     save_memories_store_first,
 )
-from memory_store import MemoryStore
+from memory import commands as memory_commands
+from memory.store import MemoryStore
 from runtime_control import CancellationToken
 
-# 人设与知识库现在统一经 ContextBuilder 组装(见 kurumi_context),UI 不再直接依赖它们
+# 人设与知识库现在统一经 ContextBuilder 组装(见 kurumi.context),UI 不再直接依赖它们
 #
 # 后台线程/推理栈/思考层已拆到 ui_workers.py、chat_params.py,
 # 这里不再导入 transformers(本地推理依赖只出现在 ui_workers)。
@@ -99,7 +99,7 @@ except ImportError:
 # 常量、后台线程、凭据校验各自独立成模块。
 # 这里保留**同名绑定**是刻意的:调用方(以及将来任何调试脚本)仍以 `UI.<name>` 访问,
 # 例如按端点能力调整 `UI._API_THINKING_*`、替换 `UI._HERE` / `UI._HAS_OPENAI`。
-from api_config import (  # noqa: F401
+from api.config import (  # noqa: F401
     _confirmed_host_account,
     _host_is_allowed,
     _is_candidate_host,
@@ -240,7 +240,7 @@ def context_builder(args=None):
     `allowed_root` 只在能拿到时注入:它用于"能力说明"里告诉模型自己能在哪个目录里
     读写文件(缺了这段说明,聊天引擎会声称自己没有读文件的能力)。
     """
-    from kurumi_context import ContextBudget, ContextBuilder
+    from kurumi.context import ContextBudget, ContextBuilder
     from persona import DEFAULT_PERSONA
 
     budget = ContextBudget(
@@ -260,7 +260,7 @@ def context_builder(args=None):
 
 
 # 注:失败回滚(移除孤立的 assistant 与未配对的 user)、历史裁剪、轮数计数
-# 统一由 `ConversationService` 独占(见 kurumi_conversation),此处不留副本。
+# 统一由 `ConversationService` 独占(见 kurumi.conversation),此处不留副本。
 
 
 def load_api_config():
@@ -1876,7 +1876,7 @@ class KurumiWindow(QMainWindow):
         builder = context_builder(self.args)
         prior = self.conversation.snapshot()[:-1]      # 去掉本轮刚写入的 user
         agent_context = builder.build_agent(prior, self.memories, text)
-        from kurumi_context import RunContext
+        from kurumi.context import RunContext
         # 把会话 id 一并交给运行 —— 审计库里这次运行就归属这段对话,
         # 恢复"上次 Agent 结果"时按会话查,清空之后旧任务不会跨边界复活。
         # getattr 兜底:实例可能是 __new__ 造出来的窗口,少一个属性不该让整轮运行起不来。

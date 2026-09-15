@@ -39,7 +39,7 @@ class PersonaProfile:
 
     为什么需要它:
     - 说话人标签只在 `PersonaProfile.role_labels()` 一处定义,不在
-      `kurumi_memory._ROLE_LABELS` 等处另存硬编码副本,改称呼只改一处且与人物卡一致;
+      `kurumi.memory` 的称呼标签 等处另存硬编码副本,改称呼只改一处且与人物卡一致;
     - 人设没有版本,无法回答"这段话是哪一版人设说出来的";
     - Agent 与聊天各自拼装人设文案,容易漂移。
 

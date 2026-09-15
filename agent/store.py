@@ -88,7 +88,7 @@ def _column_exists(conn, table: str, column: str) -> bool:
     return any(str(row[1]) == column for row in rows)
 
 
-# 每条迁移的"是否已经生效"判断(与 memory_store 同一套做法)。
+# 每条迁移的"是否已经生效"判断(与 memory.store 同一套做法)。
 # 迁移是"先改结构、再写 user_version"两步,中间进程退出会留下"结构已改、版本号还旧"的库;
 # 直接重跑 ALTER 会报 duplicate column name,那个库就再也打不开了。
 _MIGRATION_APPLIED = {
@@ -163,7 +163,7 @@ class AgentStore:
     def migrate(self) -> list:
         """把库升到 SCHEMA_VERSION,返回本次应用的版本号列表。
 
-        与 memory_store 用同一套做法:DDL 在事务里执行,中途失败整体回滚,
+        与 memory.store 用同一套做法:DDL 在事务里执行,中途失败整体回滚,
         不会留下"升了一半"的库。幂等 —— 已是最新版本时不执行任何语句。
 
         注意:迁移**必须能容忍重复执行**(老库里 ALTER 过的列再 ALTER 会报错),

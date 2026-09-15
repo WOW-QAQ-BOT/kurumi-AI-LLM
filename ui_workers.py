@@ -19,7 +19,7 @@ from openai import OpenAI
 from PySide6.QtCore import QThread, Signal
 
 from chat_params import _chat_create, _take_thinking_degradation, _thinking_kwargs
-from kurumi_memory import extract_prompt, history_to_text, parse_memories
+from kurumi.memory import extract_prompt, history_to_text, parse_memories
 from runtime_control import CancellationToken
 from ui_constants import GEN_JOIN_TIMEOUT_S, MEMORY_MAX_NEW_TOKENS, MIN_NEW_TOKENS, REPETITION_PENALTY
 

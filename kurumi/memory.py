@@ -24,7 +24,11 @@ import tempfile
 import threading
 import time
 
-MEMORY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "memory.json")
+# JSON 镜像仍在**项目根目录**（与 agent_data/ 并列），不随本模块搬进 kurumi/：
+# 它是旧版本回退与人工查看用的数据文件，位置一变，已有安装就会读到一份"空的记忆"。
+# 因此这里取包目录的上一级（= 项目根），而不是模块所在目录。
+MEMORY_FILE = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "memory.json")
 
 MAX_MEMORY_ITEMS = 200    # 记忆总条数上限（超出时淘汰最旧）
 MAX_MEMORY_LEN = 200      # 单条记忆最大字符数
@@ -74,9 +78,9 @@ def _valid_entry(item):
     """校验单条记忆结构并补齐扩展字段(类型/来源/更新时间/替代/置顶/有效位)。
 
     旧条目(只有 content/time)会被补成 kind 按内容判定 / source=legacy / active=true;
-    校验与补全逻辑在 `memory_model.normalize_entry`(纯函数,单独可测)。
+    校验与补全逻辑在 `memory.model.normalize_entry`(纯函数,单独可测)。
     """
-    import memory_model
+    from memory import model as memory_model
 
     entry = memory_model.normalize_entry(item)
     if not entry:
@@ -88,10 +92,10 @@ def _valid_entry(item):
 def _normalize_entries(items):
     """校验 + 去重,保持首次出现的顺序。
 
-    同话题的**新条目会作废旧条目**(见 `memory_model.apply_supersede`):
+    同话题的**新条目会作废旧条目**(见 `memory.model.apply_supersede`):
     旧条目保留在列表里但 `active=False`,因此没有数据丢失,主人仍可回溯与纠正。
     """
-    import memory_model
+    from memory import model as memory_model
 
     out = []
     for item in items:
@@ -436,7 +440,7 @@ def parse_memories(reply):
 
     返回 `list[dict]`(含 content/kind/supersedes),供 `add_memories` 直接并入。
     """
-    import memory_model
+    from memory import model as memory_model
 
     entries = []
     for raw in str(reply or "").splitlines():
@@ -477,7 +481,7 @@ def add_memories(memories, new_entries):
     到上限时按 `_keep_recent` 的策略淘汰(优先丢失效、绝不丢置顶)——纯 FIFO 一旦存满
     200 条就再也学不到任何新记忆(静默失效)。
     """
-    import memory_model
+    from memory import model as memory_model
 
     added = 0
     for item in new_entries:
@@ -560,7 +564,7 @@ def correct_memory(memories, target, new_content):
     保留 time 与 pinned(主人标记过的重要性和原始时间都不该因为一次纠正而丢失),
     只刷新 updated;内容变了就重新判定类型。
     """
-    import memory_model
+    from memory import model as memory_model
 
     hits = _resolve_targets(memories, target)
     text = str(new_content or "").strip()[:MAX_MEMORY_LEN]

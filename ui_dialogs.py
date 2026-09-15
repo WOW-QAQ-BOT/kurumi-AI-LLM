@@ -22,7 +22,7 @@ def persist_allowed_host(host, cfg_path, store=None):
     `cfg_path` 必须由调用方给出(生产传 DEFAULT_CONFIG_PATH);这样调用方可以用临时文件,
     不必碰真实配置。`store` 为 None 时构造真实凭据管理器。
     """
-    from api_config import _confirmed_host_account, _new_credential_store, _normalize_host
+    from api.config import _confirmed_host_account, _new_credential_store, _normalize_host
     from ui_constants import ALLOWED_HOST_CONFIRMED_VALUE
 
     if store is None:

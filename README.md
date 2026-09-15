@@ -313,7 +313,7 @@ python main.py --help               # 冒烟:命令行参数能解析
 |---|---|
 | 权限策略 / 工具（`agent/tools/*`） | 允许根目录内读自动、写需批准；根目录外写被**拒绝**；回收走回收站 |
 | 网页 / 搜索（`agent/tools/web.py`） | 审批卡写明"两段外发"；代理写错返回 `PROXY_INVALID` 而不是悄悄直连 |
-| 会话与记忆（`memory_store.py`、`UI.py`） | 重启恢复上次对话；清空=开新会话且重启不再载入；失败回合不留孤立轮次 |
+| 会话与记忆（`memory/store.py`、`UI.py`） | 重启恢复上次对话；清空=开新会话且重启不再载入；失败回合不留孤立轮次 |
 | 能力探测 / 卡片（`UI.py`） | 首次任务先征求同意；拒绝后消息改走普通聊天且不丢；探测超时有可点的出路 |
 | 界面（`ui_*.py`） | 气泡换行与宽度正确（长 token / 中英混排） |
 | 本地模型（`ui_workers.py`、`ui_constants.py`） | 本地生成不空回复、不重复、不半途截断 |
@@ -330,14 +330,19 @@ AI-LLM/
 ├── persona/                 角色设定(人设卡:SYSTEM_PROMPT + PersonaProfile)
 ├── knowledge/               知识库(检索逻辑 + 可编辑的知识条目)
 │   └── knowledge.txt        原作设定条目 —— 想加设定就改这里
-├── kurumi_memory.py         长期记忆(提炼 / 去重 / 防误清空 / JSON 镜像)
-├── memory_store.py          记忆与会话的 SQLite 存储(含 schema 迁移)
-├── memory_commands.py       /记忆 /忘记 /纠正 /置顶 命令
-├── memory_model.py          记忆提炼模型封装
-├── kurumi_context.py        上下文预算与结构化组装
-├── kurumi_conversation.py   会话服务(轮次 / 回滚 / 裁剪)
+├── kurumi/                  角色运行时(kurumi 系列)
+│   ├── context.py           上下文预算与结构化组装
+│   ├── conversation.py      会话服务(轮次 / 回滚 / 裁剪)
+│   └── memory.py            长期记忆(提炼 / 去重 / 防误清空 / JSON 镜像)
+├── memory/                  记忆与存储(memory 系列)
+│   ├── model.py             记忆的数据模型与纯函数(不含 IO)
+│   ├── store.py             记忆与会话的 SQLite 存储(含 schema 迁移)
+│   └── commands.py          /记忆 /忘记 /纠正 /置顶 命令
+├── api/                     DeepSeek 接入(api 系列)
+│   └── config.py            配置解析与凭据 / 主机授权
 ├── task_intent.py           任务意图识别
 ├── runtime_control.py       取消令牌(聊天与 Agent 共用)
+├── chat_params.py           DeepSeek 思考模式控制
 ├── agent/                   Agent 包
 │   ├── config.py            配置解析(保守降级,绝不扩大权限)
 │   ├── credentials.py       Windows 凭据管理器读写 + 明文 Key 迁移

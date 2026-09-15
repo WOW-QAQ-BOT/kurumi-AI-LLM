@@ -132,13 +132,13 @@ def select_turns(history, max_chars: int):
 def select_memories(memories, max_chars: int, kinds=None, include_fiction: bool = False) -> list:
     """按字符预算选取记忆内容(两种模式共用同一份检索结果)。
 
-    选取交由 `memory_model.select_entries` 决定,因此会:
+    选取交由 `memory.model.select_entries` 决定,因此会:
     - 跳过已失效(被替代/被忘记)的条目;
     - 默认跳过 `kind=fiction`(角色虚构经历不是主人的真实经历);
     - 置顶条目优先且必留;
     - 超长条目整条丢弃,不切一半。
     """
-    import memory_model
+    from memory import model as memory_model
 
     entries = []
     for item in (memories or []):

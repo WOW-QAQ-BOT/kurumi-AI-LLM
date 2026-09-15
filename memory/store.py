@@ -7,7 +7,7 @@
   是硬要求,重启即丢不可接受。
 
 设计约束:
-1. **导入旧 JSON 必须走 `kurumi_memory.load_memories_with_status()`** —— 复用既有的损坏备份、
+1. **导入旧 JSON 必须走 `kurumi.memory.load_memories_with_status()`** —— 复用既有的损坏备份、
    GBK 回退与防误清空判定;若自己读文件,一次损坏的 memory.json 就会在迁移中被静默丢掉;
 2. 导入只做一次(`meta.imported_from_json`),且**不删原文件**;
 3. DB 打不开或迁移失败 → 由调用方回退到 JSON,绝不让一条坏 DB 使聊天不可用。
@@ -166,12 +166,12 @@ class MemoryStore:
     def import_from_json(self, json_path=None, force=False):
         """把旧 `memory.json` 导入库;返回导入条数(0 表示未导入)。
 
-        **必须**经 `kurumi_memory.load_memories_with_status()` 读取:损坏文件会被改名留档、
+        **必须**经 `kurumi.memory.load_memories_with_status()` 读取:损坏文件会被改名留档、
         GBK 能读出、读不到时不会把记忆当成空。绕开它自己读文件就会丢掉这些保护。
         """
         if not force and self.get_meta("imported_from_json"):
             return 0
-        import kurumi_memory
+        from kurumi import memory as kurumi_memory
 
         if json_path is not None:
             original = kurumi_memory.MEMORY_FILE
@@ -189,7 +189,7 @@ class MemoryStore:
             return 0
         if status in ("corrupt", "read_error"):
             # 源文件有问题:不导入、也不打"已导入"标记,等主人修好后再试。
-            # 原文件此时已被 kurumi_memory 改名留档(corrupt)或保持原样(read_error)。
+            # 原文件此时已被 kurumi.memory 改名留档(corrupt)或保持原样(read_error)。
             self._set_meta("imported_status", status)
             return 0
         self.save_memories(memories)
@@ -216,7 +216,7 @@ class MemoryStore:
 
     def save_memories(self, memories) -> None:
         """全量替换记忆(事务内):先清空再写入,避免留下已删除的旧行。"""
-        import memory_model
+        from memory import model as memory_model
 
         rows = []
         for item in memories or []:

@@ -20,7 +20,7 @@
 """
 from dataclasses import dataclass
 
-import kurumi_memory as km
+from kurumi import memory as km
 
 PREFIX = "/"
 HELP_TEXT = (
