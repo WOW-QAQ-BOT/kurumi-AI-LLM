@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 """时崎狂三 · 人设卡（system prompt）
 
+**本目录 = 角色设定**：这个人设的**全部内容**都在本文件里（`SYSTEM_PROMPT` 是人设原文，
+`PersonaProfile` 是它的结构化视图）。导入名由 `kurumi_persona` 改为 `persona`
+（`from persona import DEFAULT_PERSONA, PersonaProfile`）。
+
 普通聊天与 Agent 两条路径共用这一份，保证人设、口癖与策略一致。
-与训练数据集完全一致（纯中文版）。
+与训练数据集完全一致（纯中文版）——**`SYSTEM_PROMPT` 必须逐字保持原样**：
+LoRA 就是照着这段文字训的，改一个字都会让人设漂移；
+需要补充额外事实时，请加在它之后（例如知识库或记忆），不要改这段。
 
 人设不只是"一坨字符串"：`PersonaProfile` 把身份、称呼、表达风格与
 **人物卡版本**结构化，供两条路径共用同一份人物状态

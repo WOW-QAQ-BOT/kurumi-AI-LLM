@@ -382,7 +382,7 @@ def history_to_text(history):
     标签由 `PersonaProfile.role_labels()` 提供（不再硬编码副本）：
     以后改称呼只需改人设一处，转录与记忆提炼会同步变化。
     """
-    from kurumi_persona import DEFAULT_PERSONA
+    from persona import DEFAULT_PERSONA
 
     labels = DEFAULT_PERSONA.role_labels()
     lines = []

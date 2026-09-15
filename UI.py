@@ -241,7 +241,7 @@ def context_builder(args=None):
     读写文件(缺了这段说明,聊天引擎会声称自己没有读文件的能力)。
     """
     from kurumi_context import ContextBudget, ContextBuilder
-    from kurumi_persona import DEFAULT_PERSONA
+    from persona import DEFAULT_PERSONA
 
     budget = ContextBudget(
         history_max_chars=int(getattr(args, "history_max_chars", 16000) or 16000),

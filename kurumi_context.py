@@ -14,7 +14,7 @@
 """
 from dataclasses import dataclass
 
-from kurumi_persona import DEFAULT_PERSONA, PersonaProfile
+from persona import DEFAULT_PERSONA, PersonaProfile
 
 
 @dataclass(frozen=True)

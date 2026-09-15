@@ -16,7 +16,7 @@
 |---|---|---|
 | **桌面聊天** | 本地 LoRA（4-bit）或 DeepSeek API，两条路共用同一份人设与记忆预算 | 开 |
 | **长期记忆** | 每 N 轮自动提炼要点；支持查看 / 纠正 / 遗忘 / 置顶 | 开（每 5 轮） |
-| **设定知识库** | `knowledge.txt` 里的原作设定，按关键词检索后注入 | 开 |
+| **设定知识库** | `knowledge/knowledge.txt` 里的原作设定，按关键词检索后注入 | 开 |
 | **Agent 任务** | 在**允许根目录**内读写文件、读只读系统信息、读网页、搜索关键词 | 开（首次需同意） |
 | **会话恢复** | 重启后恢复上次对话；清空 = 开新会话（旧记录保留但不载入） | 开 |
 | 永久删除 / 执行 Shell / 越根写入 | **不做**（策略层直接拒绝，审批卡都不会弹） | 关 |
@@ -327,14 +327,15 @@ AI-LLM/
 ├── main.py                  启动入口(命令行参数 → 建窗口 → 跑事件循环)
 ├── UI.py                    桌面聊天 UI(双引擎 + Agent)
 ├── ui_*.py                  界面部件 / 文本 / 常量 / 对话框 / 后台 worker
-├── kurumi_persona.py        统一人设卡(普通聊天 / Agent 共用)
+├── persona/                 角色设定(人设卡:SYSTEM_PROMPT + PersonaProfile)
+├── knowledge/               知识库(检索逻辑 + 可编辑的知识条目)
+│   └── knowledge.txt        原作设定条目 —— 想加设定就改这里
 ├── kurumi_memory.py         长期记忆(提炼 / 去重 / 防误清空 / JSON 镜像)
 ├── memory_store.py          记忆与会话的 SQLite 存储(含 schema 迁移)
 ├── memory_commands.py       /记忆 /忘记 /纠正 /置顶 命令
 ├── memory_model.py          记忆提炼模型封装
 ├── kurumi_context.py        上下文预算与结构化组装
 ├── kurumi_conversation.py   会话服务(轮次 / 回滚 / 裁剪)
-├── knowledge.py · knowledge.txt   设定知识库 RAG
 ├── task_intent.py           任务意图识别
 ├── runtime_control.py       取消令牌(聊天与 Agent 共用)
 ├── agent/                   Agent 包

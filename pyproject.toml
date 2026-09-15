@@ -107,7 +107,7 @@ known-first-party = [
     "kurumi_context",
     "kurumi_conversation",
     "kurumi_memory",
-    "kurumi_persona",
+    "persona",
     "knowledge",
     "runtime_control",
     "ui_text",
